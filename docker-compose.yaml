@@ -1,0 +1,36 @@
+version: '3.9'
+
+networks:
+  mynet:
+
+services:
+  kuma:
+    # image: louislam/uptime-kuma:1
+    build: 
+      context: ./.docker/kuma
+      dockerfile: ./dockerfile
+    networks:
+      - mynet
+    ports:
+      - 3001:3001
+    volumes:
+      - ./.volumes/kuma/:/app/data
+    environment:
+      - DD_AGENT_HOST=datadog-agent
+      - DD_TRACE_AGENT_PORT=8126
+  datadog-agent:
+    image: datadog/agent:latest 
+    ports:
+      - 8126:8126/tcp
+    networks:
+      - mynet
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    environment:
+      #customize .env
+      - "DD_SITE=${DD_SITE}" 
+      - "DD_API_KEY=${DD_API_KEY}"
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true

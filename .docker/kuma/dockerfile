@@ -1,0 +1,6 @@
+FROM louislam/uptime-kuma:1.17.1 AS final
+
+WORKDIR /app
+
+RUN npm install dd-trace@2.11.0
+RUN printf '%s\n%s\n' "const tracer = require('dd-trace').init();" "$(cat /app/server/server.js)" > /app/server/server.js
